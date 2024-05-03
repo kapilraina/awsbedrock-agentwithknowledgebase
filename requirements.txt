@@ -1,0 +1,8 @@
+boto3
+botocore
+langchain
+langchain_community
+langchain-aws
+requests
+google-search-results
+langchainhub

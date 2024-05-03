@@ -1,0 +1,122 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Transform: AWS::Serverless-2016-10-31
+Description: >
+  serverlessvectordatapipeline
+
+   SAM Template for serverlessvectordatapipeline
+Description: A sample template for Knowledge base with Amazon Opensearch Serverless vector database.
+Resources:
+  brkbawsossencryptionpolicy:
+   Type: AWS::OpenSearchServerless::SecurityPolicy
+   Properties:
+    Description:  encryption policy
+    Name: brkbosssecuritypolicy
+    Policy:  >-
+            {"Rules":[{"ResourceType":"collection","Resource":["collection/brkbawsossvectorcollection"]}],"AWSOwnedKey":true}
+    Type: encryption
+
+  brkbawsossnetworkpolicy:
+   Type: AWS::OpenSearchServerless::SecurityPolicy
+   Properties:
+    Description: network policy
+    Name: brkbossnetworkpolicy
+    Policy: !Sub >-
+        [{"Rules":[{"ResourceType":"collection","Resource":["collection/brkbawsossvectorcollection"]},
+        {"ResourceType":"dashboard","Resource":["collection/brkbawsossvectorcollection"]}],"AllowFromPublic":true}]
+    Type: network
+
+  brkbawsossaccesspolicy:
+    Type: AWS::OpenSearchServerless::AccessPolicy
+    Properties:
+      Description: OpenSearch Serverless vector Access Policy
+      Name: brkbvectoraccesspolicy
+      Policy: !Sub >-
+        [{"Description":"Access for cfn user","Rules":[{"ResourceType":"index","Resource":["index/*/*"],"Permission":["aoss:*"]},
+        {"ResourceType":"collection","Resource":["collection/svdpawsossvector"],"Permission":["aoss:*"]}],
+        "Principal":["arn:aws:iam::${AWS::AccountId}:user/kapil.raina"]}]
+      Type: data
+
+  brkbawsossvectorcollection:
+    Type: AWS::OpenSearchServerless::Collection
+    Properties:
+      Description: OpenSearch Serverless vector
+      Name: brkbawsossvectorcollection
+      StandbyReplicas: DISABLED
+      Type: VECTORSEARCH
+    DependsOn: brkbawsossencryptionpolicy
+
+
+
+########
+  BRKBKnowledgeBaseWithAoss:
+    Type: AWS::Bedrock::KnowledgeBase
+    Properties:
+      Name: !Ref KnowledgeBaseName
+      Description: !Ref KnowledgeBaseDescription
+      RoleArn: !GetAtt brkbrole.Arn
+      KnowledgeBaseConfiguration:
+        Type: "VECTOR"
+        VectorKnowledgeBaseConfiguration:
+          EmbeddingModelArn: !Sub "arn:${AWS::Partition}:bedrock:${AWS::Region}::foundation-model/amazon.titan-embed-text-v1"
+      StorageConfiguration:
+        Type: "OPENSEARCH_SERVERLESS"
+        OpensearchServerlessConfiguration:
+          #CollectionArn: !GetAtt brkbawsossvectorcollection.Arn
+          CollectionArn: !Ref CollectionArn
+          VectorIndexName: !Ref VectorIndexName
+          FieldMapping:
+            VectorField: "cfn-test-vector-field"
+            TextField: "text"
+            MetadataField: "metadata"
+
+  BRKBDataSource:
+    Type: AWS::Bedrock::DataSource
+    Properties:
+      KnowledgeBaseId: !Ref BRKBKnowledgeBaseWithAoss
+      Name: !Ref DataSourceName
+      Description: !Ref DataSourceDescription
+      DataSourceConfiguration:
+        Type: "S3"
+        S3Configuration:
+          BucketArn: !Ref BRKBDataSourceS3Bucket
+          #InclusionPrefixes: ["aws-overview.pdf"]
+      VectorIngestionConfiguration:
+        ChunkingConfiguration:
+          ChunkingStrategy: "FIXED_SIZE"
+          FixedSizeChunkingConfiguration:
+            MaxTokens: 200
+            OverlapPercentage: 20
+
+
+  svdplambdarolepolicy:
+    Type: AWS::IAM::Policy
+    Properties:
+      PolicyName: svdplambdarolepolicy
+      PolicyDocument:
+        Version: 2012-10-17
+        Statement:
+          - Action: "*"
+            Effect: Allow
+            Resource: "*"
+      Roles: 
+        - !Ref brkbrole
+    DependsOn: brkbrole 
+
+  brkbrole:
+    Type: AWS::IAM::Role
+    Properties:
+      RoleName: brkbrole
+      AssumeRolePolicyDocument:
+        Version: "2012-10-17"
+        Statement: 
+          - Effect: "Allow"
+            Principal: 
+              Service: 
+                - "bedrock.amazonaws.com"
+            Action: 
+              - "sts:AssumeRole"
+            #Condition:
+            #  StringEquals:
+            #    aws:SourceAccount: !Sub "${AWS::AccountId}"
+            #  ArnLike:
+            #    aws:SourceArn: !Sub "arn:aws:bedrock:${AWS::Region}:${AWS::AccountId}:agent/*"

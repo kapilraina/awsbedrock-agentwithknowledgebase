@@ -1,0 +1,73 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Transform: AWS::Serverless-2016-10-31
+Description: >
+  serverlessvectordatapipeline
+
+   SAM Template for serverlessvectordatapipeline
+Description: A sample template for Knowledge base with Amazon Opensearch Serverless vector database.
+Parameters:
+  KnowledgeBaseName:
+    Type: String
+    Description: The name of the knowledge base.
+    Default: "BRKB-knowledgebase"
+  KnowledgeBaseDescription:
+    Type: String
+    Description: The description of the knowledge base.
+    Default: "A knowledge base for testing"
+  DataSourceName:
+    Type: String
+    Description: The name of the data source.
+    Default: "BRKB-datsource"
+  DataSourceDescription:
+    Type: String
+    Description: The description of the data source.
+    Default: "A data source for testing"
+  CollectionArn:
+    Type: String
+    Description: The ARN of the collection.
+  VectorIndexName:
+    Type: String
+    Description: The name of the vector index.
+    Default: "brkb-vector-index"
+Resources:
+#s3 bucket for data source
+  BRKBDataSourceS3Bucket:
+    Type: AWS::S3::Bucket
+    Properties:
+      BucketName: brkb-source-s3-02
+      AccessControl: Private
+      VersioningConfiguration:
+        Status: Enabled
+      BucketEncryption:
+        ServerSideEncryptionConfiguration:
+          - ServerSideEncryptionByDefault:
+              SSEAlgorithm: AES256
+
+
+  geocodingproxy:
+    Type: AWS::Serverless::Function 
+    Properties:
+      CodeUri: src/tools
+      Handler: geocodingproxy.lambda_handler
+      Runtime: python3.12
+      FunctionName: geocodingproxy
+      Architectures:
+      - x86_64
+      #Role: !GetAtt svdplambdarole.Arn
+      Environment:
+        Variables:
+          API_KEY: ""
+
+  ecommapiadapter:
+    Type: AWS::Serverless::Function 
+    Properties:
+      CodeUri: src/tools
+      Handler: ecommapiadapter.lambda_handler
+      Runtime: python3.12
+      FunctionName: ecommapiadapter
+      Architectures:
+      - x86_64
+      #Role: !GetAtt svdplambdarole.Arn
+      Environment:
+        Variables:
+          API_KEY: ""

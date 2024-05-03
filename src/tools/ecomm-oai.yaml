@@ -1,0 +1,161 @@
+openapi: 3.0.0
+info:
+  title: E-commerce API
+  description: This API provides endpoints for managing customers, orders, and products in an e-commerce system.
+  version: 1.0.0
+paths:
+  /customers:
+    get:
+      summary: Get all customers
+      description: Retrieves a list of all customers in the system.
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Customer'
+    post:
+      summary: Create a new customer
+      description: Creates a new customer in the system.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Customer'
+      responses:
+        '201':
+          description: Customer created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Customer'
+  /orders:
+    get:
+      summary: Get all orders
+      description: Retrieves a list of all orders in the system.
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Order'
+    post:
+      summary: Create a new order
+      description: Creates a new order in the system.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Order'
+      responses:
+        '201':
+          description: Order created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Order'
+  /products:
+    get:
+      summary: Get all products
+      description: Retrieves a list of all products in the system.
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Product'
+  /customer_orders/{customerId}:
+    get:
+      summary: Get all orders for a specific customer
+      description: Retrieves a list of all orders for a specific customer in the system.
+      parameters:
+        - in: path
+          name: customerId
+          required: true
+          schema:
+            type: integer
+            minimum: 1
+          description: The unique identifier of the customer.
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Order'
+  /customer_orders/{orderId}:
+    put:
+      summary: Update an existing order
+      description: Updates an existing order in the system.
+      parameters:
+        - in: path
+          name: orderId
+          required: true
+          schema:
+            type: integer
+            minimum: 1
+          description: The unique identifier of the order.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Order'
+      responses:
+        '200':
+          description: Order updated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Order'
+components:
+  schemas:
+    Customer:
+      type: object
+      properties:
+        id:
+          type: integer
+          description: The unique identifier for a customer.
+        name:
+          type: string
+          description: The name of the customer.
+    Order:
+      type: object
+      properties:
+        id:
+          type: integer
+          description: The unique identifier for an order.
+        customerId:
+          type: integer
+          description: The customer ID associated with the order.
+        productId:
+          type: integer
+          description: The product ID associated with the order.
+        quantity:
+          type: integer
+          description: The quantity of the product in the order.
+    Product:
+      type: object
+      properties:
+        id:
+          type: integer
+          description: The unique identifier for a product.
+        name:
+          type: string
+          description: The name of the product.
+        price:
+          type: number
+          description: The price of the product.

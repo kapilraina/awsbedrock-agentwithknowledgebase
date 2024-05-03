@@ -1,0 +1,10 @@
+version = 0.1
+[default.deploy.parameters]
+stack_name = "agentwithknowledgebase"
+resolve_s3 = true
+s3_prefix = "agentwithknowledgebase"
+region = "us-east-1"
+confirm_changeset = true
+capabilities = "CAPABILITY_IAM CAPABILITY_NAMED_IAM"
+parameter_overrides = "KnowledgeBaseName=\"BRKB-knowledgebase\" KnowledgeBaseDescription=\"A knowledge base for testing\" DataSourceName=\"BRKB-datsource\" DataSourceDescription=\"A data source for testing\" CollectionArn=\"arn:aws:aoss:us-east-1:647441304019:collection/xyg5w44uw0tu5zn265ad\" VectorIndexName=\"brkb-vector-index\""
+image_repositories = []
