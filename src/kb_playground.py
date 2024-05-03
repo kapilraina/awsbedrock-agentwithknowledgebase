@@ -1,42 +1,19 @@
 from langchain_aws import BedrockLLM
 from langchain_aws import ChatBedrock
-from langchain.chains import ConversationChain
-from langchain.memory import ConversationBufferMemory
 from langchain.memory import ChatMessageHistory
-from langchain.callbacks.streaming_stdout import StreamingStdOutCallbackHandler
-from langchain.agents import AgentType, initialize_agent, load_tools
-from langchain.schema import (
-    AIMessage,
-    HumanMessage,
-    SystemMessage,
-    FunctionMessage,
-    ChatMessage,
-    StrOutputParser
-)
-from langchain.prompts.chat import (
-    ChatPromptTemplate,
-    SystemMessagePromptTemplate,
-    HumanMessagePromptTemplate,
-    ChatPromptTemplate
-)
-from langchain.prompts import PromptTemplate
+
 from langchain_community.embeddings.bedrock import BedrockEmbeddings
 
 from langchain_core.runnables.history import RunnableWithMessageHistory
 from langchain.chains import RetrievalQA
 import boto3
-from langchain.agents.agent_toolkits import create_conversational_retrieval_agent
 from langchain.agents import AgentExecutor, Tool, create_react_agent
 from langchain import hub
-from langchain.agents.agent_toolkits.conversational_retrieval.tool import (
-    create_retriever_tool,
-)
+from langchain.agents.agent_toolkits.conversational_retrieval.tool import create_retriever_tool
 
 from langchain_community.utilities import GoogleSerperAPIWrapper
 from langchain_community.retrievers import AmazonKnowledgeBasesRetriever
 import boto3
-from botocore.eventstream import EventStream
-import json
 from uuid import uuid4
 
 parameters = {
@@ -124,7 +101,7 @@ def knowledgebase_retriever_Agentic():
     prompt = hub.pull("hwchase17/react")
     agent = create_react_agent(chat_claude, alltools, prompt)
     memory = ChatMessageHistory(session_id="chat-history")
-    agent_executor = AgentExecutor(agent=agent, tools=alltools,handle_parsing_errors=True,verbose=True)
+    agent_executor = AgentExecutor(agent=agent, tools=alltools,handle_parsing_errors=True,verbose=False)
     agent_with_chat_history = RunnableWithMessageHistory(
                     agent_executor,
                     lambda session_id: memory,
@@ -139,7 +116,9 @@ def knowledgebase_retriever_Agentic():
                     config={"configurable": {"session_id": "JHJMNBNMB67686"}})
         print(res['output'])
     
-
+'''
+Use Bedrock Agent via AWS SDK. The Agent is configured to hanlde user session and maintains state and memory. So client doesnt have to do it.
+'''
 def bedrock_Agent():
     client = boto3.client('bedrock-agent-runtime')
     session_id = str(uuid4())
