@@ -1,0 +1,22 @@
+{
+    "csv": {
+      "embeddingattributes": [
+        "ProfileName",
+        "Summary",
+        "Text"
+        
+      ],
+      "metadataattributes": [
+        "ProductId",
+        "UserId",
+        "Time",
+        "Id",
+        "Score"
+      ],
+      "index_id": [
+        "ProductId",
+        "UserId",
+        "Id"
+      ]
+    }
+}

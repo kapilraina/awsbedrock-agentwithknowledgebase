@@ -6,3 +6,4 @@ langchain-aws
 requests
 google-search-results
 langchainhub
+openai
