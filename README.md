@@ -2,6 +2,7 @@
 ![alt text](abr.png)
 
 This is a supporting code repo for AWS Bedrock blog post :
+
 https://kapil-raina.medium.com/aws-bedrock-exploring-agents-knowledge-base-rag-bd2856c80d2f
 
 
