@@ -12,7 +12,7 @@ def print_documents(documents):
 default_retrieval_config ={
         "vectorSearchConfiguration":
                 {
-                    "numberOfResults": 10
+                    "numberOfResults": 5
                 }
         }  
 
@@ -96,8 +96,8 @@ def as_lc_kb_RAG():
         print(res['result'])
         print("\n SOURCES:")
         for index, doc in enumerate(res['source_documents'], start=1):
-            print("*"*100)
-            print(f"{doc.page_content[:100]} ...")
+            print("_"*100)
+            print(f"{doc.page_content[:200]} ...")
         print(doc.metadata)
 
 
@@ -116,7 +116,10 @@ def as_br_kb_retriever():
             }
         )
 
-        print(res)
+        for index, doc in enumerate(res['retrievalResults'], start=1):
+            print("-"*150)
+            print(f"{doc['content']}")
+            print(f"{doc['metadata']}")
 
 
 def as_br_kb_retriever_generate():
@@ -152,5 +155,7 @@ def as_br_kb_retriever_generate():
 
 
 
-as_br_kb_retriever_generate()
+#as_br_kb_retriever()
+#as_br_kb_retriever_generate()
+as_lc_kb_RAG()
 
